@@ -9,6 +9,7 @@
 	let recurringNotes = $derived(() => notes.filter(note => note.status === 'recurring'));
 
 	let state = $state({ expanded: false, active: 0 });
+	let menuOpen = $state(false);
         let typing = $state({ currently: false });
 	let menuFocused = $state('');
 	let message = $state('');
@@ -36,7 +37,9 @@
                         }
 		}, 900); 
 	};
-
+        const toggleMenu = () => {
+		menuOpen = !menuOpen;
+        }
 	const toggle = () => {
 		state.expanded = !state.expanded;
 	};
@@ -152,39 +155,11 @@
 			state.expanded ? 'expanded' : 'halo'
 		].filter(Boolean).join(' ');
 	});
-	const menuClass = $derived(() => {
-		return [
-			'menu', 
-			state.expanded ? 'expanded' : '',
-			state.active === 0 ? 'active' : 'inactive'
-		].filter(Boolean).join(' ');
-	});
-	const item1Class = $derived(() => {
+	const menuElement = $derived((x) => {
 		return [
 			'item',
 			state.expanded ? 'expanded' : '',
-			state.active === 0 ? 'glow' : 'noglow'
-		].filter(Boolean).join(' ');
-	});
-	const item2Class = $derived(() => {
-		return [
-			'item', 
-			state.expanded ? 'expanded' : '',
-			state.active === 1 ? 'glow' : 'noglow'
-		].filter(Boolean).join(' ');
-	});
-	const item3Class = $derived(() => {
-		return [
-			'item', 
-			state.expanded ? 'expanded' : '',
-			state.active === 2 ? 'glow' : 'noglow'
-		].filter(Boolean).join(' ');
-	});
-	const item4Class = $derived(() => {
-		return [
-			'item', 
-			state.expanded ? 'expanded' : '',
-			state.active === 3 ? 'glow' : 'noglow'
+			state.active === x ? 'glow' : 'noglow'
 		].filter(Boolean).join(' ');
 	});
 	const pane1Class = $derived(() => {
@@ -256,7 +231,8 @@
   .tab.expanded {
   }
   .halo {
-    filter: drop-shadow(1px 1px 3px #d1ffc1);
+	border-right: solid white 2px;
+	border-bottom: solid white 2px;
   }
   .menu {
     position: fixed;
@@ -278,25 +254,27 @@
   }
 
   .item {
-    width: 2.5rem;
-    height: 2.5rem;
+    aspect-ratio: 1;
+    width: 2rem;
+    height: auto;
     border-radius: 50%;
-    background-color: rgba(50,50,50,0.1);
+    background-color: rgba(30, 30, 30, 1);
     border: solid transparent 2px;
     color: white;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     font-size: 1rem;
     cursor: pointer;
     outline: none;
-    margin-top: 4px;
+    margin-left: 2rem;
     user-select: none;
     opacity: 0;
     transition: all 0.3s ease;
   }
   .item.expanded {
     opacity: 1;
+    display: flex;
   }
   .glow {
     border-radius: 25%;
@@ -322,6 +300,8 @@
   }
   .paneWrapper {
     width: 100vw;
+    height: auto;
+    flex: 1;
     overflow-y: auto;
     display: block;
   }
@@ -344,6 +324,8 @@
   }
   .pane.active {
     width: 100%;
+    height: 100% !important;
+    flex: 1;
     padding: 20px;
     box-sizing: border-box; 
     overflow-y: auto;
@@ -361,15 +343,15 @@
     background-color: rgba(30, 30, 30, 1);
   }
   .red {
-    background: linear-gradient(90deg,rgba(242, 27, 63, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 1) 100%);
+    background: linear-gradient(90deg,rgba(242, 27, 63, 1) 0%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%);
     transition: background-color 0.5s ease-in-out;
   }
   .purple {
-    background: linear-gradient(90deg,rgba(8, 189, 189, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 1) 100%);
+    background: linear-gradient(90deg,rgba(8, 189, 189, 1) 0%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%);
     transition: background-color 0.5s ease-in-out;
   }
   .green {
-    background: linear-gradient(90deg,rgba(41, 191, 18, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 1) 100%);
+    background: linear-gradient(90deg,rgba(41, 191, 18, 1) 0%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%);
     transition: background-color 0.5s ease-in-out;
   }
   .note {
@@ -461,46 +443,68 @@
     left: 0;
     bottom: 0;
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     width: 100vw;
     height: 0;
     transition: all 0.4s ease;
-    background-color: rgba(33, 36, 30, 1);
+    background-color: transparent;
     box-sizing: border-box; 
     border-radius: 12px 12px 0 0;   
-    padding-top: 1rem;
+    background-color: rgba(63,63,63,1);
+    overflow: hidden;
   }
   .inputPanel.expanded {
-    height: 25vh;
+    min-height: 25vh;
+    height: auto;
   }
-  .inputPanel > textarea {
+  textarea {
     all: unset;           /* Remove all default styles */
     display: none;
     font-size: 22px;
     box-sizing: border-box; 
-    border: 2px solid rgba(50,50,50,1); 
     border-radius: 12px;   
     padding: 0.5rem;      
     font-family: inherit; 
     margin-right: 4px;
     color: rgba(255,255,255,1);
+    background-color: rgba(205, 215, 205, 1);
   }
-  .inputPanel.expanded > textarea {
+  .expanded textarea {
     display: block;
     width: 80%;
   }
-  .inputPanel.grow {
+  .grow {
   }
-  .inputPanel.grow > textarea {
+  .grow textarea {
     height: 40vh;
   }
+  .menuButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    width: 2rem;
+    height: auto;
+    border-radius: 50%;
+    background-color: rgba(0,0,0,1); 
+    margin-left: 4px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    border: solid transparent 2px;
+    outline: none;
+    user-select: none;
+    transition: width 0.3s ease;
+  }
   .sendButton {
+    aspect-ratio: 1;
     width: 3rem;
-    height: 3rem;
+    height: auto;
     border-radius: 50%;
     background-color: rgba(37,211,102,1); /* Bootstrap blue */
-    margin-left: 4px;
+    margin-left: auto;
     color: white;
     font-size: 1rem;
     cursor: pointer;
@@ -509,6 +513,17 @@
     user-select: none;
     transition: width 0.3s ease;
   }
+  .row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 12px;
+    padding: 6px;
+  }
+
 /* 4K Monitor */
 @media (min-height: 2160px) {
   .pane.active,
@@ -594,12 +609,6 @@
 
 <div class={tabClass()} onclick={toggle} class:grey={!state.expanded || isScrolling || typing.currently}>
   {state.expanded ? '‹' : '›'}
-</div>
-<div class={menuClass()}>
-  <div class={item1Class(0)} class:grey={isScrolling || typing.currently} onclick={() => activePane(0)}></div>
-  <div class={item2Class(1)} class:grey={isScrolling || typing.currently} class:borderRed={isScrolling} onclick={() => activePane(1)}></div>
-  <div class={item3Class(2)} class:grey={isScrolling || typing.currently} class:borderPurple={isScrolling} onclick={() => activePane(2)}></div>
-  <div class={item4Class(3)} class:grey={isScrolling || typing.currently} class:borderGreen={isScrolling} onclick={() => activePane(3)}></div>
 </div>
 <div class="wrapper" >
   <div class="panel {state.expanded ? 'expanded' : ''}">
@@ -726,8 +735,42 @@
   </div>
 </div>
 <div class={inputPanelClass()}>
+  {#if !typing.currently}
+    <div class="row">
+      <div class="menuButton" onclick={() => toggleMenu()}>
+        {menuOpen ? '›' : '‹' }
+      </div>
+      {#if menuOpen}
+        <div 
+              class={menuElement(0)} 
+              onclick={() => activePane(0)}
+              transition:fly={{ x: 200, duration: 500 }}
+        ></div>
+        <div 
+              class={menuElement(1)} 
+              class:borderRed={menuOpen}
+              onclick={() => activePane(1)}
+              transition:fly={{ x: 200, duration: 500 }}
+        ></div>
+        <div 
+              class={menuElement(2)} 
+              class:borderPurple={menuOpen} 
+              onclick={() => activePane(2)}
+              transition:fly={{ x: 200, duration: 500 }}
+        ></div>
+        <div 
+              class={menuElement(3)} 
+              class:borderGreen={menuOpen} 
+              onclick={() => activePane(3)}
+              transition:fly={{ x: 200, duration: 500 }}
+        ></div>
+      {/if}
+    </div>
+  {/if}
+  <div class="row">
   <textarea onfocus={handleFocus} onblur={handleBlur} value={message} oninput={(e) => (message = e.target.value)}></textarea>
   <div class={sendButtonClass()} onclick={() => sendMessage()}></div>
+  </div>
 <!--
   <div onclick={() => scrollDown()}>Down</div>
   <div onclick={() => scrollUp()}>Up</div>
