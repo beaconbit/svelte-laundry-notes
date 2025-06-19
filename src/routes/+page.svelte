@@ -27,7 +27,7 @@
                 justify-content: center;
                 width: 100vw;
                 max-width: 400px;
-                background-color: rgba(50, 50, 50, 1);
+                background-color: var(--color-bg-1);
                 box-sizing: border-box;
                 border-radius: 12px;
                 padding: 12px;
@@ -39,15 +39,16 @@
                 justify-content: space-between;
                 width: 100%;
                 box-sizing: border-box;
-                border-radius: 12px;
                 padding: 12px;
                 margin-bottom: 6px;
-		color: rgba(115,105,115,1);
-                border: 2px solid rgba(75,75,75,1);
+		color: var(--color-text)
+                border-radius: 2px;
+                border-width: 1px;
+		border-style: solid;
+		border-color: var(--color-bg-2);
         }
 	.row:hover {
-                border: 2px solid rgba(255,255,255,1);
-		color: rgba(255,255,255,1);
+                background-color: var(--color-bg-2);
 	}
 
 	section {
@@ -57,7 +58,7 @@
 		align-items: center;
 		flex: 0.6;
 	        font-family: 'Manrope', sans-serif;
-		font-size: 22px;
+		font-size: 18px;
 	}
 
 	h1 {

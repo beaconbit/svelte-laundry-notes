@@ -9,7 +9,7 @@
 </svelte:head>
 
 <section>
-  <Notespanel notes={data.notes} machine={data.machine} />
+  <Notespanel existing_notes={data.notes} machine={data.machine} />
 </section>
 
 <style>

@@ -11,6 +11,10 @@ const client = new Database(env.DATABASE_URL);
 
 export const db = drizzle(client, { schema });
 
+export async function deleteNote(id) {
+	const note = await db.delete(notes).where(eq(notes.id, id)).run();
+}
+
 export async function deleteNotes(engineer) {
 	const note = await db.delete(notes).where(eq(notes.engineer, engineer)).run();
 }

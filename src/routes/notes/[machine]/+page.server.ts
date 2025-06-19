@@ -15,6 +15,7 @@ export const load = async ({ params }) => {
 	if (!machine) {
 		throw error(404, 'Machine not found');
 	}
+	console.log(results);
 
 	return { notes: results, machine: machine };
 };
