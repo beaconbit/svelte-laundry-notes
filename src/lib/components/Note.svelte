@@ -3,78 +3,8 @@
 	import { fly } from 'svelte/transition';
 	import ElapsedClock from './ElapsedClock.svelte';
 
-	let { note } = $props();
+	let { note, deleteNote, markSolved, markUrgent, markRecurring } = $props();
 
-        async function deleteNote(id) {
-                if (id.length === 0) { return; }
-                const result = await fetch('/api/admin-delete-note', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id })
-                });
-                if (result.ok) {
-			console.log("deleting note ", id);
-			notes = notes.filter(note => note.id !== id);
-                } else {
-                        console.log("failed to delete");
-		}
-        }
-        async function markSolved(id) {
-		// Update server state
-		const result = await fetch('/api/mark-solved', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id })
-		});
-	        if (result.ok) {
-	        	// Update the local state
-	        	notes = notes.map(note =>
-	        		note.id === id ? { ...note, status: 'solved' } : note
-	        	);
-	        }
-
-        }
-        async function markUrgent(id) {
-		// Update server state
-		const result = await fetch('/api/mark-urgent', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id })
-		});
-	        if (result.ok) {
-	        	// Update the local state
-	        	notes = notes.map(note =>
-	        		note.id === id ? { ...note, status: 'urgent' } : note
-	        	);
-	        }
-        }
-        async function markRecurring(id) {
-		// Update server state
-		const result = await fetch('/api/mark-recurring', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id })
-		});
-	        if (result.ok) {
-	        	// Update the local state
-	        	notes = notes.map(note =>
-	        		note.id === id ? { ...note, status: 'recurring' } : note
-	        	);
-	        }
-        }
-
-
-        function exitNote(id) {
-		console.log(menuFocused, id, menuFocused === id);
-		menuFocused = (menuFocused === id) ? '' : id;
-        }
-	const menuElement = $derived((x) => {
-		return [
-			'item',
-			state.expanded ? 'expanded' : '',
-			state.active === x ? 'glow' : 'noglow'
-		].filter(Boolean).join(' ');
-	});
 </script>
 
 <style>
@@ -138,10 +68,8 @@
     align-items: center;
     justify-content: space-around;
     height: 100%;
-    width: 1rem;
-    overflow: hidden;
-    border-radius: 6px;
-    transition: all 0.5s ease !important;
+    width: auto;
+    border: 1px red solid;
   }
   .menuFocused {
     width: 12rem;
@@ -185,7 +113,7 @@
       class:purple={note.status === "recurring"}
       class:green={note.status === "solved"}
   >
-    <div class="noteMenu" class:menuFocused={note.id === menuFocused}>
+    <div class="noteMenu">
       <div class="noteGreenButton" onclick={() => markSolved(note.id)}></div>
       <div class="noteRedButton" onclick={() => markUrgent(note.id)}></div>
       <div class="noteExitButton" onclick={() => exitNote(note.id)}></div>
