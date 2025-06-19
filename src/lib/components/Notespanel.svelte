@@ -1,8 +1,10 @@
 
 <script>
 	import { fade, fly } from 'svelte/transition';
+	import ElapsedClock from './ElapsedClock.svelte';
 
-        let { notes = [], machine = 'error' } = $props();
+        let { existing_notes = [], machine = 'error' } = $props();
+	let notes = $derived(existing_notes);
 
 	let urgentNotes = $derived(() => notes.filter(note => note.status === 'urgent'));
 	let solvedNotes = $derived(() => notes.filter(note => note.status === 'solved'));
@@ -62,6 +64,20 @@
         function scrollUp() {
 		container.scrollTo({ top: 0, behavior: 'smooth' })
 	}
+        async function deleteNote(id) {
+                if (id.length === 0) { return; }
+                const result = await fetch('/api/admin-delete-note', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id })
+                });
+                if (result.ok) {
+			console.log("deleting note ", id);
+			notes = notes.filter(note => note.id !== id);
+                } else {
+                        console.log("failed to delete");
+		}
+        }
         async function sendMessage() {
 		if (message.length === 0) { return; }
 		console.log('message: ', message);
@@ -71,6 +87,7 @@
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ text: message, engineer: machine })
 		});
+		console.log("created: ", { text: message, engineer: machine });
 	        if (result.ok) {
 			const json = await result.json();
 			const newNote = json.body[0];
@@ -478,7 +495,7 @@
   .grow {
   }
   .grow textarea {
-    height: 40vh;
+    /* height: 40vh; */
   }
   .menuButton {
     display: flex;
@@ -637,6 +654,7 @@
               {#if note.engineer}
                 <span>{note.engineer}</span>
 		<span>{note.created}</span>
+		<span><ElapsedClock timestamp={note.created} /></span>
               {/if}
 	    </div>
           </div>
@@ -667,6 +685,7 @@
               {#if note.engineer}
                 <span>{note.engineer}</span>
 		<span>{note.created}</span>
+		<span><ElapsedClock timestamp={note.created} /></span>
               {/if}
 	    </div>
           </div>
@@ -698,6 +717,7 @@
               {#if note.engineer}
                 <span>{note.engineer}</span>
 		<span>{note.created}</span>
+		<span><ElapsedClock timestamp={note.created} /></span>
               {/if}
 	    </div>
           </div>
@@ -716,6 +736,10 @@
 		class:purple={note.status === "recurring"}
 		class:green={note.status === "solved"}
             >
+              <div class="noteMenu" class:menuFocused={note.id === menuFocused}>
+                <div class="noteRedButton" onclick={() => deleteNote(note.id)}></div>
+                <div class="noteExitButton" onclick={() => exitNote(note.id)}></div>
+              </div>
 	    </div>
 	    <div class="noteContent">
               {note.text}
@@ -724,6 +748,7 @@
               {#if note.engineer}
                 <span>{note.engineer}</span>
 		<span>{note.created}</span>
+		<span><ElapsedClock timestamp={note.created} /></span>
               {/if}
 	    </div>
           </div>
@@ -735,7 +760,6 @@
   </div>
 </div>
 <div class={inputPanelClass()}>
-  {#if !typing.currently}
     <div class="row">
       <div class="menuButton" onclick={() => toggleMenu()}>
         {menuOpen ? '›' : '‹' }
@@ -766,7 +790,6 @@
         ></div>
       {/if}
     </div>
-  {/if}
   <div class="row">
   <textarea onfocus={handleFocus} onblur={handleBlur} value={message} oninput={(e) => (message = e.target.value)}></textarea>
   <div class={sendButtonClass()} onclick={() => sendMessage()}></div>
